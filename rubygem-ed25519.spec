@@ -13,6 +13,7 @@ Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
 # git -C ed25519 archive -v -o ed25519-1.2.4-spec.txz v1.2.4 spec
 Source1: %{gem_name}-%{version}-spec.txz
 BuildRequires: ruby(release)
+BuildRequires: rubygem(rspec)
 BuildRequires: rubygems-devel
 BuildRequires: ruby-devel >= 2.0.0
 # Compiler is required for build of gem binary extension.
@@ -33,7 +34,7 @@ BuildArch: noarch
 Documentation for %{name}.
 
 %prep
-%setup -q -n %{gem_name}-%{version}
+%setup -q -n %{gem_name}-%{version} -b1
 
 %build
 gem build ../%{gem_name}-%{version}.gemspec
@@ -53,7 +54,10 @@ rm -rf %{buildroot}%{gem_instdir}/ext/
 
 %check
 pushd .%{gem_instdir}
-rspec spec
+ln -s %{_builddir}/spec .
+
+sed -i '/^require .bundler\/setup./ s/^/#/g' ./spec/spec_helper.rb
+rspec -I$(dirs +1)%{gem_extdir_mri} spec
 popd
 
 %files
