@@ -8,6 +8,10 @@ Summary: An efficient digital signature library providing the Ed25519 algorithm
 License: MIT
 URL: https://github.com/crypto-rb/ed25519
 Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
+# Tests are not packaged with the gem. You may get them like so:
+# git clone --no-checkout https://github.com/crypto-rb/ed25519
+# git -C ed25519 archive -v -o ed25519-1.2.4-spec.txz v1.2.4 spec
+Source1: %{gem_name}-%{version}-spec.txz
 BuildRequires: ruby(release)
 BuildRequires: rubygems-devel
 BuildRequires: ruby-devel >= 2.0.0
@@ -32,11 +36,7 @@ Documentation for %{name}.
 %setup -q -n %{gem_name}-%{version}
 
 %build
-# Create the gem as gem install only works on a gem file
 gem build ../%{gem_name}-%{version}.gemspec
-
-# %%gem_install compiles any C extensions and installs the gem into ./%%gem_dir
-# by default, so that we can move it into the buildroot in %%install
 %gem_install
 
 %install
@@ -53,31 +53,28 @@ rm -rf %{buildroot}%{gem_instdir}/ext/
 
 %check
 pushd .%{gem_instdir}
-# Run the test suite.
+rspec spec
 popd
 
 %files
 %dir %{gem_instdir}
 %{gem_extdir_mri}
-%exclude %{gem_instdir}/.gitignore
-%exclude %{gem_instdir}/.rubocop.yml
-%exclude %{gem_instdir}/.travis.yml
-%{gem_instdir}/CHANGES.md
-%{gem_instdir}/CODE_OF_CONDUCT.md
+%exclude %{gem_instdir}/.*
 %license %{gem_instdir}/LICENSE
-%{gem_instdir}/appveyor.yml
-%{gem_instdir}/ed25519.png
+%exclude %{gem_instdir}/appveyor.yml
 %{gem_libdir}
 %exclude %{gem_cache}
 %{gem_spec}
 
 %files doc
 %doc %{gem_docdir}
-%exclude %{gem_instdir}/.rspec
 %{gem_instdir}/Gemfile
 %doc %{gem_instdir}/README.md
 %{gem_instdir}/Rakefile
 %{gem_instdir}/ed25519.gemspec
+%doc %{gem_instdir}/CHANGES.md
+%doc %{gem_instdir}/CODE_OF_CONDUCT.md
+%{gem_instdir}/ed25519.png
 
 %changelog
 * Fri Apr 16 2021 Pavel Valena <pvalena@redhat.com> - 1.2.4-1
