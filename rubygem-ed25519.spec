@@ -1,16 +1,16 @@
-# Generated from ed25519-1.2.4.gem by gem2rpm -*- rpm-spec -*-
+# Generated from ed25519-1.3.0.gem by gem2rpm -*- rpm-spec -*-
 %global gem_name ed25519
 
 Name: rubygem-%{gem_name}
-Version: 1.2.4
-Release: 1.3%{?dist}
+Version: 1.3.0
+Release: 1%{?dist}
 Summary: An efficient digital signature library providing the Ed25519 algorithm
 License: MIT
 URL: https://github.com/crypto-rb/ed25519
 Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
 # Tests are not packaged with the gem. You may get them like so:
 # git clone --no-checkout https://github.com/crypto-rb/ed25519
-# git -C ed25519 archive -v -o ed25519-1.2.4-spec.txz v1.2.4 spec
+# git -C ed25519 archive -v -o ed25519-1.3.0-spec.txz v1.3.0 spec
 Source1: %{gem_name}-%{version}-spec.txz
 BuildRequires: ruby(release)
 BuildRequires: rubygem(rspec)
@@ -56,8 +56,11 @@ rm -rf %{buildroot}%{gem_instdir}/ext/
 pushd .%{gem_instdir}
 ln -s %{_builddir}/spec .
 
-sed -i '/^require .bundler\/setup./ s/^/#/g' ./spec/spec_helper.rb
-rspec -I$(dirs +1)%{gem_extdir_mri} spec
+sed -i -e '/^require .bundler\/setup./ s/^/#/g' \
+  -e '/^require .coveralls./ s/^/#/g' \
+  -e '/^Coveralls\./ s/^/#/g' \
+  ./spec/spec_helper.rb
+rspec -rspec_helper -I$(dirs +1)%{gem_extdir_mri} spec
 popd
 
 %files
@@ -65,21 +68,16 @@ popd
 %{gem_extdir_mri}
 %exclude %{gem_instdir}/.*
 %license %{gem_instdir}/LICENSE
-%exclude %{gem_instdir}/appveyor.yml
 %{gem_libdir}
 %exclude %{gem_cache}
 %{gem_spec}
 
 %files doc
 %doc %{gem_docdir}
-%{gem_instdir}/Gemfile
 %doc %{gem_instdir}/README.md
-%{gem_instdir}/Rakefile
-%{gem_instdir}/ed25519.gemspec
 %doc %{gem_instdir}/CHANGES.md
-%doc %{gem_instdir}/CODE_OF_CONDUCT.md
 %{gem_instdir}/ed25519.png
 
 %changelog
-* Fri Apr 16 2021 Pavel Valena <pvalena@redhat.com> - 1.2.4-1
+* Thu Aug 25 2022 Pavel Valena <pvalena@redhat.com> - 1.3.0-1
 - Initial package
