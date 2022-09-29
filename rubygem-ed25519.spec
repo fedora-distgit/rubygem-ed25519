@@ -36,6 +36,10 @@ Documentation for %{name}.
 %prep
 %setup -q -n %{gem_name}-%{version} -b1
 
+find -type f -iname '*.jar'
+
+%gemspec_remove_file ["lib/ed25519_jruby.jar"]
+
 %build
 gem build ../%{gem_name}-%{version}.gemspec
 %gem_install
